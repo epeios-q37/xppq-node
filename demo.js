@@ -42,7 +42,8 @@ var arg = process.argv[2];
 if ( arg != undefined )
 	test = Number( arg );
 
-console.log( xppq.info() );
+// console.log( xppq.info() );
+console.log( xppq.extendedInfo() );
 
 const file = __dirname + '/demo.xml';
 

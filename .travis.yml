@@ -13,10 +13,8 @@ node_js:
 - "4"
 
 script:
-# Both below commands are already done.
+# Below commented commands are automatically done.
 #- npm install node-pre-gyp
 #- node-pre-gyp configure
-# - make -j 4
-# Above command is faster as below one.
-#- node-pre-gyp -j 4 build
+#- node-pre-gyp build
 - node demo.js
