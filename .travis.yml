@@ -4,10 +4,6 @@ os:
 
 dist: trusty
 
-compiler:
-- g++
-- clang++
-
 language: node_js
 
 node_js:

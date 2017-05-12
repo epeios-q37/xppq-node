@@ -17,6 +17,8 @@
 	along with xppq. If not, see <http://www.gnu.org/licenses/>.
 */
 
+"use strict"
+
 var xppq = null;
 
 if ( process.env.EPEIOS_SRC ) {
