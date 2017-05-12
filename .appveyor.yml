@@ -14,7 +14,8 @@ os :
 
 before_build:
 - npm install -g node-gyp
-- node-gyp configure
+- npm install -g node-pre-gyp
+- node-pre-gyp configure
 
 test_script:
 - node demo.js
