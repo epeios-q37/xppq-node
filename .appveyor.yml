@@ -5,7 +5,7 @@ environment:
 # - Win32
 # - x64
 
-# configuration: Release
+configuration: Release
 
 os :
 - Visual Studio 2013
