@@ -9,9 +9,6 @@ platform:
 - x86
 - x64
 
-install:
-  - ps: Install-Product node $env:nodejs_version $env:platform
-
 # configuration: Release
 
 os :
@@ -20,6 +17,7 @@ os :
 - Visual Studio 2017
 
 install:
+- ps: Install-Product node $env:nodejs_version $env:platform
 - npm install -g node-gyp
 - npm install -g node-pre-gyp	# to allow use as command in a console.
 - node-pre-gyp configure
