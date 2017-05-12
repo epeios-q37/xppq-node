@@ -15,5 +15,5 @@ node_js:
 script:
 #- npm install node-pre-gyp
 #- node-pre-gyp configure
-- make -j 4
+- node-pre-gyp /m build
 - node demo.js
