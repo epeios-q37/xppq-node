@@ -10,7 +10,7 @@ matrix:
     - os: osx
       compiler: clang++  
 
-language: node
+language: node_js
 
 script:
 - node-pre-gyp configure
