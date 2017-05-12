@@ -18,7 +18,9 @@ environment:
 before_build:
 - npm install -g node-gyp
 - npm install -g node-pre-gyp
-# - node-pre-gyp configure
+- node-pre-gyp configure
+
+build:
 - node-pre-gyp build /m
 
 test_script:
