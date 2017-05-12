@@ -10,16 +10,16 @@ environment:
 
 # configuration: Release
 
-os :
-- Visual Studio 2013
+# os :
+# - Visual Studio 2013
 # - Visual Studio 2015
 # - Visual Studio 2017
 
 before_build:
 - npm install -g node-gyp
 - npm install -g node-pre-gyp
-- node-pre-gyp configure
-- node-pre-gyp build
+# - node-pre-gyp configure
+- node-pre-gyp build /m
 
 test_script:
 - node demo.js
