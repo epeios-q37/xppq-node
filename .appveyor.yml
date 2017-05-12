@@ -12,7 +12,11 @@ os :
 # - Visual Studio 2015
 # - Visual Studio 2017
 
+before_build:
+- node-pre-gyp configure
+
 test_script:
+- node demo.js
 
 matrix:
   allow_failures:
