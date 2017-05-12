@@ -10,7 +10,8 @@ matrix:
     - os: osx
       compiler: clang++  
 
-language: java
+language: node
 
 script:
+- node-pre-gyp configure
 - make -j 4
