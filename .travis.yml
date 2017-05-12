@@ -3,15 +3,16 @@ matrix:
     - os: linux
       dist: trusty
       compiler: g++
-    - os: linux
-      compiler: clang++
+#    - os: linux
+ #     compiler: clang++
 # Probably due to 'language' setting below, despite above line, the 'CXX' environment have to be set .
-      env: CXX=clang++
-    - os: osx
-      compiler: clang++  
+#      env: CXX=clang++
+#    - os: osx
+#      compiler: clang++  
 
 language: node_js
 
 script:
+- npm install node-pre-gyp
 - node-pre-gyp configure
 - make -j 4
