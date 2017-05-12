@@ -15,7 +15,7 @@ environment:
 # - Visual Studio 2015
 # - Visual Studio 2017
 
-before_build:
+install:
 - npm install -g node-gyp
 - npm install -g node-pre-gyp
 - node-pre-gyp configure
