@@ -20,7 +20,7 @@ install:
 - npm install -g node-pre-gyp
 - node-pre-gyp configure
 - node-pre-gyp /m build
-- npm install node-gyp
+- npm install node-pre-gyp
 
 build: off
 
