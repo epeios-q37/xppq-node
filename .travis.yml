@@ -13,7 +13,10 @@ node_js:
 - "4"
 
 script:
+# Both below commands are already done.
 #- npm install node-pre-gyp
 #- node-pre-gyp configure
-- node-pre-gyp -j 4 build
+make -j 4
+# Above command is fzster as below one.
+# - node-pre-gyp -j 4 build
 - node demo.js
