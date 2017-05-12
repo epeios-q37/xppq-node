@@ -1,20 +1,20 @@
 os:
 - linux
-- osx
+# - osx
 
 dist: trusty
 
 language: node_js
 
 node_js:
-  - "node"
-  - "4"
-  - "5"
-  - "6"
-  - "7"
+- "node"
+#  - "4"
+#  - "5"
+#  - "6"
+#  - "7"
 
 script:
-- npm install node-pre-gyp
-- node-pre-gyp configure
+#- npm install node-pre-gyp
+#- node-pre-gyp configure
 - make -j 4
 - node demo.js
