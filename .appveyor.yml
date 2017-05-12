@@ -13,8 +13,8 @@ os :
 # - Visual Studio 2017
 
 before_build:
-- npm install -g node-pre-gyp
-- node-pre-gyp configure
+# - npm install -g node-pre-gyp
+- node-gyp configure
 
 test_script:
 - node demo.js
