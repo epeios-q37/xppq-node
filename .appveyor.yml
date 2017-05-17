@@ -29,7 +29,7 @@ build: off
 test_script:
 - node demo.js
 
-matrix:
-  allow_failures:
-  - os: Visual Studio 2017
+# matrix:
+  # allow_failures:
+  # - os: Visual Studio 2017
 
