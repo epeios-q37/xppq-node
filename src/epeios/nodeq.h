@@ -65,7 +65,7 @@ namespace nodeq {
 		}
 		void ToString( sString &String ) const
 		{
-			String.Init( v8q::sObject( *this ).Launch( "toString" ) );
+			String.Init( Launch( "toString" ) );
 		}
 	};
 
@@ -85,7 +85,7 @@ namespace nodeq {
 	public:
 		qCDTOR( sRStream );
 		/*
-			Both below event handler seems not to work properly. The 'onend' event semms not be always called. Use 'OnReadable' instead.
+			Both below event handler seems not to work properly. The 'onend' event seems not be always called. Use 'OnReadable' instead.
 		*/
 		void OnDataFail(
 			const sFunction &Callback,
