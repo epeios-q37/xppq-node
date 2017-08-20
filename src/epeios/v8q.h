@@ -310,6 +310,10 @@ namespace v8q {
 
 			sObject_::Init( Value );
 		}
+		bso::sBool IsNull( void ) const
+		{
+			return Core()->IsNull();
+		}
 		v8::Local<v8::Value> Get(
 			const char *Key,
 			v8::Isolate *Isolate = NULL )

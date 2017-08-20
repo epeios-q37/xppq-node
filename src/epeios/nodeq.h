@@ -35,7 +35,7 @@ namespace nodeq {
 	using namespace v8q;
 
 	class sBuffer
-	: public sValue
+	: public sObject
 	{
 	public:
 		qCDTOR( sBuffer );
@@ -52,7 +52,7 @@ namespace nodeq {
 		{
 			Init( Data, Isolate );
 		}
-		using sValue::Init;
+		using sObject::Init;
 		void Init(
 			const char *Data,
 			size_t Length,
@@ -118,9 +118,14 @@ namespace nodeq {
 			sBuffer &Chunk,
 			v8::Isolate *Isolate = NULL )
 		{
-			Chunk.Init( Launch( "read", Isolate ) );
+			v8q::sValue Value = Launch( "read", Isolate );
 
-			return !Chunk.IsNull();
+			if ( Value.IsNull() )
+				return false;
+			else {
+				Chunk.Init( Value.Core() );
+				return true;
+			}
 		}
 		bso::sBool Push(
 			v8::Local<v8::Value> Value,
