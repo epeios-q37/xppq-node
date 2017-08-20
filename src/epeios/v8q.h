@@ -265,7 +265,7 @@ namespace v8q {
 		qCDTOR( sValue_ );
 		sValue_( v8::Local<v8::Value> Value )
 		{
-			sValue_::Init( Value );
+			sData_<item>::Init( Value );
 		}
 		using sData_<item>::Init;
 		bso::sBool IsNull( void ) const
