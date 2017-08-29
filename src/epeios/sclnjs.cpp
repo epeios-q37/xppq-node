@@ -21,250 +21,96 @@
 
 #include "sclnjs.h"
 
-#include "sclerror.h"
-#include "sclmisc.h"
-
 using namespace sclnjs;
 
-void sclnjs::ErrFinal( v8::Isolate *Isolate )
+namespace {
+	template <typename callback, typename host> void Get_(
+		int Index,
+		n4all::cCaller &Caller,
+		n4all::sEnum Type,
+		host &Host )
+	{
+	qRH
+		callback *Callback = NULL;
+	qRB
+		Caller.GetArgument( Index, Type, &Callback );
+		Host.Assign( Callback );
+	qRR
+		if ( Callback != NULL )
+			delete Callback;
+	qRT
+	qRE
+	}
+}
+
+
+template <> void scln4::Get(
+	int Index,
+	cCaller_ &Caller,
+	sclnjs::rRStream &Stream )
+{
+	Get_<n4njs::cURStream>( Index, Caller, n4njs::tStream, Stream );
+}
+
+template <> void scln4::Get(
+	int Index,
+	cCaller_ &Caller,
+	sclnjs::rBuffer &Buffer )
+{
+	Get_<n4njs::cUBuffer>( Index, Caller, n4njs::tBuffer, Buffer );
+}
+
+template <> void scln4::Get(
+	int Index,
+	cCaller_ &Caller,
+	sclnjs::rCallback &Callback )
+{
+	Get_<n4njs::cUCallback>( Index, Caller, n4njs::tCallback, Callback );
+}
+
+
+txf::text_oflow__ &operator <<(
+	txf::text_oflow__ &Flow,
+	rBuffer &Buffer )
 {
 qRH
-	str::wString Message;
-	err::buffer__ Buffer;
+	str::wString String;
 qRB
-	Isolate = v8q::GetIsolate( Isolate );
+	String.Init();
+	Buffer.ToString( String );
 
-	Message.Init();
-
-	if ( ERRType != err::t_Abort ) {
-		ERRRst();	// To avoid relaunching of current error by objects of the 'FLW' library.
-
-		Message.Append( err::Message( Buffer ) );
-	} else if ( sclerror::IsErrorPending() )
-		sclmisc::GetSCLBasePendingErrorTranslation( Message );
-
-	if ( Isolate != NULL )
-		Isolate->ThrowException( v8::Exception::Error( v8q::ToString( Message ) ) ); 
-	else
-		cio::CErr << txf::nl << Message << txf::nl;
+	Flow << String;
 qRR
-	ERRRst();
 qRT
 qRE
+	return Flow;
 }
-
 
 namespace {
-	bch::qBUNCHwl( sFunction_ ) Functions_;
+	n4njs::fAsyncLauncher Launcher_ = NULL;
 }
 
-void sclnjs::sRegistrar::Register( sFunction_ Function )
+void scln4a::SCLN4ARegister(
+	sRegistrar &Registrar,
+	void *UP )
 {
-	Functions_.Append( Function );
-}
+	const n4njs::gShared &Shared = *( const n4njs::gShared* )UP;
 
-void sclnjs::sRegistrar::Register(
-	const char *Name,
-	v8::FunctionCallback Function )
-{
-	NODE_SET_METHOD( E_(), Name, Function );
-}
+	if ( Shared.Launcher == NULL )
+		qRFwk();
 
+	Launcher_ = Shared.Launcher;
 
-namespace {
-	void Launch_( const v8::FunctionCallbackInfo<v8::Value>& Info )
-	{
-	qRFH
-		sArguments Arguments;
-	qRFB
-		if ( Info.Length() < 1 )
-			qRGnr();
-
-		if ( !Info[0]->IsUint32() )
-			qRGnr();
-
-		v8::Local<v8::Uint32> Index = v8::Local<v8::Uint32>::Cast(Info[0] );
-
-		if ( !Functions_.Exists( Index->Uint32Value() ) )
-			qRGnr();
-
-		Arguments.Init( Info );
-
-		Functions_( Index->Uint32Value())( Arguments );
-
-		if ( sclerror::IsErrorPending() )
-			qRAbort();	// To force the handling of a pending error.
-	qRFR
-	qRFT
-	qRFE( ErrFinal( Info.GetIsolate() ) )
-	}
-}
-
-namespace {
-	namespace {
-		void GetExtendedInfo_( str::dString &Info )
-		{
-		qRH
-			flx::rStringOFlow BaseFlow;
-			txf::sOFlow Flow;
-		qRB
-			BaseFlow.Init( Info );
-			Flow.Init( BaseFlow );
-
-			Flow << sclmisc::SCLMISCProductName << " v" << SCLNJSProductVersion << " - Node v" NODE_VERSION_STRING " ABI v" NODE_STRINGIFY( NODE_MODULE_VERSION )  << txf::nl
-			     << txf::pad << "Build : " __DATE__ " " __TIME__ " (" <<  cpe::GetDescription() << ')';
-		qRR
-		qRT
-		qRE
-		}
-		void GetInfo_( str::dString &Info )
-		{
-		qRH
-			flx::rStringOFlow BaseFlow;
-			txf::sOFlow Flow;
-		qRB
-			BaseFlow.Init( Info );
-			Flow.Init( BaseFlow );
-
-			Flow << sclmisc::SCLMISCProductName << " v" << SCLNJSProductVersion << " - Build : " __DATE__ " " __TIME__;
-		qRR
-		qRT
-		qRE
-		}
-	}
-
-	void GetExtendedInfo_(const v8::FunctionCallbackInfo<v8::Value>& Args)
-	{
-	qRH
-		str::wString Info;
-	qRB
-		Info.Init();
-
-		GetExtendedInfo_( Info );
-
-		Args.GetReturnValue().Set( v8q::sString( Info ).Core() );
-	qRR
-	qRT
-	qRE
-	}
-
-	void GetInfo_(const v8::FunctionCallbackInfo<v8::Value>& Args)
-	{
-	qRH
-		str::wString Info;
-	qRB
-		Info.Init();
-
-		GetInfo_( Info );
-
-		Args.GetReturnValue().Set( v8q::sString( Info ).Core() );
-	qRR
-	qRT
-	qRE
-	}
-}
-
-namespace {
-	err::err___ Error_;
-	sclerror::rError SCLError_;
-	scllocale::rRack Locale_;
-	sclmisc::sRack Rack_;
-}
-
-namespace {
-	namespace {
-		void GetParentModuleFilename_(
-			v8::Local<v8::Value> Module,
-			str::dString &Filename )
-		{
-		qRH
-			char *Buffer = NULL;
-			v8q::sString String;
-		qRB
-			String.Init( v8q::sObject( v8q::sObject(Module).Get( "parent" ) ).Get( "filename" ) );
-			Buffer = (char *)malloc(String.Size() + 1 );
-
-			if ( Buffer == NULL )
-				qRAlc();
-
-			String.Get( Buffer );
-
-			Filename.Append( Buffer, String.Size() );
-		qRR
-		qRT
-			if ( Buffer != NULL  )
-				free( Buffer );
-		qRE
-		}
-	}
-
-	void GetParentModuleLocation_(
-		v8::Local<v8::Value> Module,
-		str::dString &Location )
-	{
-	qRH
-		str::wString Filename;
-		fnm::rName Path;
-	qRB
-		Filename.Init();
-
-		GetParentModuleFilename_( Module, Filename );
-
-		Path.Init();
-		fnm::GetLocation( Filename, Path );
-
-		Path.UTF8( Location );
-	qRR
-	qRT
-	qRE
-	}
-}
-
-void sclnjs::Register_(
-	v8::Local<v8::Object> Exports,
-	v8::Local<v8::Value> Module,
-	void* priv )
-{
-qRFH
-	str::wString Location;
-qRFB
-	sRegistrar Registrar;
-
-	NODE_SET_METHOD( Exports, "extendedInfo", GetExtendedInfo_ );
-	NODE_SET_METHOD( Exports, "info", GetInfo_ );
-	NODE_SET_METHOD( Exports, "_wrapper", Launch_ );
-
-	cio::Initialize( cio::GetConsoleSet() );
-	Rack_.Init( Error_, SCLError_, cio::GetSet( cio::t_Default ), Locale_ );
-
-	Location.Init();
-	GetParentModuleLocation_( Module, Location );
-
-	sclmisc::Initialize( Rack_, Location, qRPU );
-
-	Registrar.Init( Exports );
-
-	Functions_.Init();
 	sclnjs::SCLNJSRegister( Registrar );
-	/*
-	error_::Initialize();
-
-	error_::Launch();
-	*/
-qRFR
-qRFT
-qRFE( ErrFinal() )
 }
 
-qGCTOR( sclnjs )
+void sclnjs::Launch( cAsync &Async )
 {
-	Error_.Init();
-	SCLError_.Init();
-	Locale_.Init();
-
-//  Segmentaiton fault when launched here, so launched in 'Register_()'.
-//	error_::Initialize();
-
-// Sudenly stops to work ('Segmentation fault', so was deplaced in the 'Register_' function.
-//	Functions_.Init();
+	return Launcher_( Async );
 }
+
+
+
+
+
+

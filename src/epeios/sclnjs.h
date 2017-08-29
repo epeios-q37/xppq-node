@@ -28,105 +28,215 @@
 #  define SCLNJS_DBG
 # endif
 
-// Note to developer : include 'h:\hg\NJSIncludeDirectories.props' in the '.vcxproj'.
-# include <node.h>
+# include "n4njs.h"
+# include "scln4a.h"
+# include "uvqdcl.h"
 
-# include "err.h"
-# include "v8q.h"
+// Wrapping to 'UVQ' library;
+# define SCLNJSWork		UVQWork
+# define SCLNJSAfter	UVQAfter
 
 namespace sclnjs {
-	void ErrFinal( v8::Isolate *Isolate = NULL );
-	
-	void Register_(
-		v8::Local<v8::Object> Exports,
-		v8::Local<v8::Value> Module,
-		void* priv );
+	using n4njs::cAsync;
+	using scln4a::sCaller;
+	using scln4a::sRegistrar;
+	using uvq::eBehavior;
 
-	template <typename item> inline void Get_(
-		int Index,
-		const v8::FunctionCallbackInfo<v8::Value> Infos,
-		item &Item )
+	qCDEF( eBehavior, bExitAndDelete, uvq::bExitAndDelete );
+	qCDEF( eBehavior, bExitOnly, uvq::bExitOnly );
+	qCDEF( eBehavior, bRelaunch, uvq::bRelaunch );
+
+	inline void ERRFinal( void )
 	{
-		if ( Index >= Infos.Length()  )
+		// TODO.
+		qRVct();
+	}
+
+	template <typename callback> class rBase_
+	{
+	private:
+		callback *Callback_;
+	protected:
+		qRM( callback, C_, Callback_ );
+	public:
+		void reset( bso::sBool P = true )
+		{
+			if ( P )
+				if ( Callback_ != NULL )
+					delete Callback_;
+
+			tol::reset( P, Callback_ );
+		}
+		void Init( void )
+		{
+			Callback_ = NULL;
+		}
+		void Assign( callback *Callback )
+		{
+			Callback_ = Callback;
+		}
+		callback &Callback( void )
+		{
+			return C_();
+		}
+	};
+
+	typedef rBase_<n4njs::cUCallback> rCallback_;
+
+	inline void TestAndAdd_(
+		n4njs::dArguments_ &Arguments,
+		n4njs::eArgumentType_ Type,
+		void *Value )
+	{
+		n4njs::sArgument_ Argument;
+
+		if ( Value == NULL )
 			qRFwk();
 
-		Item.Init( Infos[Index] );
+		Argument.Init( Type, Value );
+
+		Arguments.Add( Argument );
 	}
 
-	template <typename item, typename ...items> inline void Get_(
-		int Index,
-		const v8::FunctionCallbackInfo<v8::Value> Infos,
-		item &Item,
-		items &...Items )
+	inline void Add_( n4njs::dArguments_ &Arguments )
+	{}
+
+	inline void Add_(
+		n4njs::dArguments_ &Arguments,
+		const int &Int )
 	{
-		Get_( Index, Infos, Item );
+		TestAndAdd_( Arguments, n4njs::atInt, new int( Int ) );
+	}
 
-		Get_( Index+1, Infos, Items... );
+	inline void Add_(
+		n4njs::dArguments_ &Arguments,
+		const str::dString &String )
+	{
+		TestAndAdd_( Arguments, n4njs::atString, new str::wString( String ) );
+	}
+
+	inline void Add_(
+		n4njs::dArguments_ &Arguments,
+		const str::wString &String )
+	{
+		Add_( Arguments, *String );
+	}
+
+	template <typename arg> inline void Add_(
+		n4njs::dArguments_ &Arguments,
+		const arg &Arg )
+	{
+		sclnjs::Add_( Arguments, Arg );
+	}
+	template <typename arg, typename ...args> void Add_(
+		n4njs::dArguments_ &Arguments,
+		const arg &Arg,
+		const args &...Args )
+	{
+		Add_( Arguments, Arg );
+		Add_( Arguments, Args... );
 	}
 
 
-	class sArguments {
-	private:
-		qRMV( const v8::FunctionCallbackInfo<v8::Value>, A_, Arguments_ );
+	class rCallback
+	: public rCallback_
+	{
 	public:
-		void reset( bso::sBool P = true )
+		template <typename ...args> void Launch( const args &...Args )
 		{
-			Arguments_ = NULL;
-		}
-		qCDTOR( sArguments );
-		void Init( const v8::FunctionCallbackInfo<v8::Value> &Arguments )
-		{
-			Arguments_ = &Arguments;
-		}
-		template <typename item> void Get(
-			bso::sUInt Index,
-			item &Item ) const
-		{
-			if ( Index == 0 )
-				qRFwk();
+		qRH
+			n4njs::wArguments_ Arguments;
+		qRB
+			Arguments.Init();
+			Add_( Arguments, Args... );
 
-			Get_( Index, A_(), Item );
-		}
-		template <typename ...items> inline void Get( items &...Items ) const
-		{
-			Get_( 1, A_(), Items... );
-		}
-		void This( v8q::sObject &This )
-		{
-			This.Init( A_().This() );
-		}
-		v8::Isolate *Isolate( void ) const
-		{
-			return A_().GetIsolate();
+			C_().Launch( n4njs::atVoid, Arguments );
+		qRR
+		qRT
+		qRE
 		}
 	};
 
-	typedef void (* sFunction_)( const sArguments &);
-
-	class sRegistrar
+	template <typename callback> class rCore_
+	: public rBase_<callback>
 	{
-	private:
-		qRMV( v8::Local<v8::Object>, E_, Exports_ );
+	protected:
+		using rBase_<callback>::C_;
 	public:
-		void reset( bso::sBool P = true )
+		void Set(
+			const char *Key,
+			void *Value )
 		{
-			tol::reset( P, Exports_ );
+			return C_().Set( Key, Value );
 		}
-		qCDTOR( sRegistrar )
-		void Init( v8::Local<v8::Object> &Exports )
+		void *Get( const char *Key )
 		{
-			Exports_ = &Exports;
+			return C_().Get( Key );
 		}
-		void Register( sFunction_ Function );
-		void Register(
-			const char *Name,
-			v8::FunctionCallback Function );
+		void EmitError( const str::dString &Message )
+		{
+			return C_().EmitError( Message );
+		}
 	};
 
-	void SCLNJSRegister( sRegistrar &Registrar );	// To overload by user.
-	extern const char *SCLNJSProductVersion;	// To define by user.
+	typedef rCore_<n4njs::cUBuffer> rBuffer_;
+
+	class rBuffer
+	: public rBuffer_ {
+	public:
+		void ToString( str::dString &String )
+		{
+			return C_().ToString( String );
+		}
+	};
+
+	typedef rCore_<n4njs::cURStream> rRStream_;
+
+	class rRStream
+	: public rRStream_ {
+	public:
+		bso::sBool Read( str::dString &Chunk )
+		{
+			return C_().Read( Chunk );
+		}
+		bso::sBool Push(
+			void *Buffer,
+			bso::sSize Size )
+		{
+			return C_().Push( Buffer, Size );
+		}
+		void End( void )
+		{
+			return C_().End();
+		}
+	};
+
+	void Launch( cAsync &Async );
+
+	void SCLNJSRegister( sRegistrar &Registrar );	// To define by user
 }
 
-# define SCLNJS_MODULE( name ) NODE_MODULE( name, sclnjs::Register_ );
+// Declaration of the handling of it own types.
+// Extends same namespace declared in 'scln4a.h'.
+namespace scln4 {
+	template <> void Get(
+		int Index,
+		cCaller_ &Caller,
+		sclnjs::rRStream &Stream );
+
+	template <> void Get(
+		int Index,
+		cCaller_ &Caller,
+		sclnjs::rBuffer &Buffer );
+
+	template <> void Get(
+		int Index,
+		cCaller_ &Caller,
+		sclnjs::rCallback &Callback );
+}
+
+txf::text_oflow__ &operator <<(
+	txf::text_oflow__ &Flow,
+	sclnjs::rBuffer &Buffer );
 
 #endif

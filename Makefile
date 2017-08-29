@@ -1,19 +1,19 @@
 #	Copyright (C) 2007-2017 Claude SIMON (http://q37.info/contact/).
 #
-#	This file is part of xppq.
+#	This file is part of XPPq.
 #
-#	xppq is free software: you can redistribute it and/or
+#	XPPq is free software: you can redistribute it and/or
 #	modify it under the terms of the GNU Affero General Public License
 #	published by the Free Software Foundation, either version 3 of the
 #	License, or (at your option) any later version.
 #
-#	xppq is distributed in the hope that it will be useful,
+#	XPPq is distributed in the hope that it will be useful,
 #	but WITHOUT ANY WARRANTY; without even the implied warranty of
 #	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
 #	Affero General Public License for more details.
 #
 #	You should have received a copy of the GNU Affero General Public License
-#	along with xppq. If not, see <http://www.gnu.org/licenses/>.
+#	along with XPPq. If not, see <http://www.gnu.org/licenses/>.
 
 name = xppqnjs
 
@@ -25,8 +25,6 @@ copt += -DE_DEBUG
 # For using <setjmp.h> instead of C++ exceptions.
 #copt += -DERR_JMPUSE
 	
-mods += sclargmnt sclmisc sclerror scllocale sclrgstry 
-mods += sclnjs 
 mods += ags aem bch bitbch bso 
 mods += cio cpe crptgr cslio crt 
 mods += ctn dir dte dtfbsc dtfptb 
@@ -37,11 +35,13 @@ mods += lstctn mns mtk mtx ntvstr
 mods += que sdr stkbse stkbch stkctn 
 mods += str strng tagsbs tol txf 
 mods += tys uys utf xtf llio 
-mods += dlbrry nodeq plgn plgncore tht 
-mods += thtsub uvq v8q bomhdl cdgb64 
-mods += fil fnm lcl ntvstr rgstry 
-mods += stsfsm xml xpp 
-mods += parser stream common 
+mods += dlbrry n4all n4njs plgn plgncore 
+mods += tht thtsub uvqdcl bomhdl cdgb64 
+mods += fil fnm lcl rgstry stsfsm 
+mods += xml xpp 
+mods += sclargmnt sclmisc sclerror scllocale sclrgstry 
+mods += scln4a sclnjs 
+mods += common parser stream registry 
 
 pmods += pllio 
 
@@ -145,6 +145,17 @@ endif
 
 ##########################
 		
+
+####################################
+# For Android (Termux) environment #
+####################################
+
+ifeq ("$(os)","$(Android)")
+
+endif
+
+#############################
+	
 ###################################
 ###################################
 ##### DON'T MODIFY BELOW !!! ######
@@ -212,6 +223,10 @@ ifeq ("$(os)","$(Cygwin)")
     
 	endif
 	
+	ifneq ("$(target)","$(Android)")
+		binary=$(name).dll
+		lo += -Wl,--kill-at -shared
+	endif
 
 
 	dest=/cygdrive/h/bin/
@@ -244,7 +259,8 @@ ifeq ("$(os)", "$(MinGW)")
 		endif
 	endif
 
-	
+	binary=$(name).dll
+	lo += -Wl,--kill-at -shared
 
 	dest=/h/bin/
 endif
@@ -273,7 +289,9 @@ ifeq ("$(os)","$(GNULinux)")
 			lo += -m64
 		endif
 	endif
-	
+	binary=lib$(name).so
+	lo += -shared
+	co += -fPIC
 
 	dest=/home/csimon/bin/
 endif
@@ -302,7 +320,9 @@ ifeq ("$(os)","$(Linux)")
 			lo += -m64
 		endif
 	endif
-	
+	binary=lib$(name).so
+	lo += -shared
+	co += -fPIC
 endif
 
 #############################
@@ -327,12 +347,42 @@ ifeq ("$(os)","$(MacOS)")
 			lo += -m64
 		endif
 	endif
-	
+	binary=lib$(name).dylib
+	lo += -dynamiclib
 
 	dest=/Users/csimon/bin/
 endif
 
 ##########################
+		
+
+####################################
+# For Android (Termux) environment #
+####################################
+
+ifeq ("$(os)","$(Android)")
+ 
+	co += -std=gnu++11 -DUNICODE -D_FILE_OFFSET_BITS=64
+	
+	mods += $(pmods)
+
+	libs += -lpthread -ldl -lrt
+	
+	ifeq ("$(target)","$(IA_32)")
+		co += -m32
+		lo += -m32
+	else # 'ifeq' on other line due to GNU 3.80 (Maemo on N900).
+		ifeq ("$(target)","$(AMD64)")
+			co += -m64
+			lo += -m64
+		endif
+	endif
+	binary=lib$(name).so
+	lo += -shared
+	co += -fPIC
+endif
+
+#############################
 		
 all: $(binary)
 
@@ -341,7 +391,7 @@ ifeq ("$(target)","$(Android)")
 	rm -rf *.d
 endif
 
-copt += -DVERSION=\""20170512"\"
+copt += -DVERSION=\""20170829"\"
 copt += -DCOPYRIGHT_YEARS=\""2007-2017"\"
 copt += -DIDENTIFIER=\""d6a723cb-e88f-4f2f-b429-3adc207f1d62"\"
 

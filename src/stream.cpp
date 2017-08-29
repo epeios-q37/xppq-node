@@ -19,14 +19,10 @@
 
 #include "stream.h"
 
-#include <node_buffer.h>
-
-#include "uvq.h"
-#include "nodeq.h"
-
 #include "common.h"
 
 #include "sclmisc.h"
+#include "sclnjs.h"
 
 #include "cio.h"
 #include "mtk.h"
@@ -74,6 +70,10 @@ namespace {
 			qRE
 			}
 
+			namespace {
+
+			}
+
 			void Routine_(
 				void *UP,
 				mtk::gBlocker &Blocker )
@@ -89,7 +89,7 @@ namespace {
 				Process_( IDriver, OFlow, Error );
 			qRFR
 			qRFT
-			qRFE(sclnjs::ErrFinal() )
+			qRFE( sclnjs::ERRFinal() )
 			}
 		}
 
@@ -255,7 +255,7 @@ namespace {
 				Process_( Driver, Content );
 			qRFR
 			qRFT
-			qRFE(sclnjs::ErrFinal() )
+			qRFE( sclnjs::ERRFinal() )
 			}
 		}
 
@@ -282,9 +282,9 @@ namespace {
 		sRelay_ StreamRelay_, ProcessRelay_;
 		txf::rOFlow ProcessFlow_;
 		rContent_ Content_;
-		v8::Persistent<v8::Object> Stream_;
+		sclnjs::rRStream *Stream_;
 		fdr::sByte Buffer_[100];
-		fdr::sSize Amount_;	// Amount of dfata in the buffer.
+		fdr::sSize Amount_;	// Amount of data in the buffer.
 	public:
 		txf::rOFlow OFlow;
 		tht::rBlocker Blocker;
@@ -292,12 +292,16 @@ namespace {
 		str::wString Error;
 		void reset( bso::sBool P = true )
 		{
-			tol::reset( P, StreamRelay_, ProcessRelay_, OFlow, ProcessFlow_, Content_, Blocker, Wait, Error );
+			if ( P ) {
+				if ( Stream_ != NULL )
+					delete Stream_;
+			}
+
+			tol::reset( P, StreamRelay_, ProcessRelay_, OFlow, ProcessFlow_, Content_, Blocker, Wait, Error, Stream_ );
 			Amount_ = 0;
-			Stream_.Reset();
 		}
 		qCVDTOR( rStreamRack_ );
-		void Init( nodeq::sRStream &Stream )
+		void Init( sclnjs::rRStream &Stream )
 		{
 			tol::Init( StreamRelay_, ProcessRelay_, Content_, Error );
 
@@ -311,7 +315,7 @@ namespace {
 			process_::ASyncProcess( ProcessRelay_.In, ProcessFlow_, Error );
 			f2c_::ASyncProcess( StreamRelay_.In, Content_ );
 
-			Stream_.Reset( nodeq::GetIsolate(), Stream.Core() );
+			Stream_ = &Stream;
 
 			Amount_ = 0;
 		}
@@ -331,38 +335,32 @@ namespace {
 		bso::sBool Send( void )
 		{
 			bso::sBool Terminate = false;
-		qRH
-			nodeq::sRStream Stream;
-		qRB
-			Stream.Init( v8::Local<v8::Object>::New( v8q::GetIsolate(), Stream_ ) );
 			
 			if ( Amount_ != 0 ) {
-				Wait = !Stream.Push( nodeq::sBuffer( (const char *)Buffer_, Amount_ ) );
+				Wait = !Stream_->Push( Buffer_, Amount_ );
 			} else {
-				Stream.End();
+				Stream_->End();
 				Terminate = true;
 			}
-		qRR
-		qRT
-		qRE
+
 			return Terminate;
 		}
 	};
 
 	namespace {
-		typedef uvq::cASync cASync_;
+		typedef sclnjs::cAsync cAsync_;
 	}
 
 	class rStreamRackASyncCallback_	// By naming it simply 'rRackASyncCallback_', VC++ debugger confuse it with the one in 'parser.cpp', althought both are defined in an anonymous namespace !
 	: public rStreamRack_,
-		public cASync_
+		public cAsync_
 	{
 	protected:
-		virtual void UVQWork( void ) override
+		virtual void SCLNJSWork( void ) override
 		{
 			rStreamRack_::Retrieve();
 		}
-		virtual uvq::eBehavior UVQAfter( void ) override
+		virtual uvq::eBehavior SCLNJSAfter( void ) override
 		{
 			if ( rStreamRack_::Send() ) {
 				return uvq::bExitAndDelete;
@@ -375,101 +373,132 @@ namespace {
 			rStreamRack_::reset( P );
 		}
 		qCVDTOR( rStreamRackASyncCallback_ );
-		void Init( nodeq::sRStream &Stream )
+		void Init( sclnjs::rRStream &Stream )
 		{
 			rStreamRack_::Init( Stream );
 		}
 	};
-#if 1
-	void OnReadable_( const v8q::sFunctionInfos &Infos )
-	{
-	qRFH
-		nodeq::sRStream This;
-		nodeq::sBuffer Chunk;
-	qRFB
-		This.Init(Infos.This() );
-
-		rStreamRack_ &Rack = *nodeq::sExternal<rStreamRack_>( This.Get( "_rack0" ) ).Value();
-
-		Chunk.Init();
-
-		if ( This.Read( Chunk ) )
-			Rack.OFlow << Chunk;
-		else
-			Rack.OFlow.Commit();
-
-		if ( sclerror::IsErrorPending() )
-			qRAbort();
-	qRFR
-	qRFT
-	qRFE( sclnjs::ErrFinal() )
-	}
-#else
-	void OnData_( const v8q::sFunctionInfos &Infos )
-	{
-	qRFH
-		nodeq::sRStream This;
-		nodeq::sBuffer Chunk;
-	qRFB
-		This.Init(Infos.This() );
-
-		Chunk.Init();
-		v8q::Get( Infos, Chunk );
-		
-		rStreamRack_ &Rack = *nodeq::sExternal<rStreamRack_>( This.Get( "_rack0" ) ).Value();
-
-		Rack.OFlow << Chunk;
-	qRFR
-	qRFT
-	qRFE( sclnjs::ErrFinal() )
-	}
-
-	void OnEnd_( const v8q::sFunctionInfos &Infos )
-	{
-	qRFH
-		nodeq::sRStream This;
-	qRFB
-		This.Init( Infos.This() );
-		rStreamRack_ &Rack = *nodeq::sExternal<rStreamRack_>( This.Get( "_rack0" ) ).Value();
-
-		Rack.OFlow.Commit();
-	qRFR
-	qRFT
-	qRFE( sclnjs::ErrFinal() )
-	}
-#endif
-
-	namespace {
-		void Error( const v8::FunctionCallbackInfo<v8::Value>& info )
-		{
-		//	v8q::sObject(info[0]).Launch("emit", "error", "Ohlala" );
-			v8q::sObject(info[0]).EmitError( info[1] );
-		}
-	}
-
-	void OnRead_( const v8q::sFunctionInfos &Infos )
-	{
-		nodeq::sRStream This;
-		This.Init( Infos.This() );
-		v8q::sFunction Function;
-
-		Function.Init( Error );
-
-		rStreamRack_ &Rack = *nodeq::sExternal<rStreamRack_>( This.Get( "_rack0" ) ).Value();
-
-		if ( Rack.Error.Amount() != 0 ) {
-			v8q::process::NextTick( Error, This, Rack.Error );
-			Rack.Error.Init();
-		}
-
-		Rack.Blocker.Unblock();
-	}
 }
 
-void stream::Set( const sclnjs::sArguments &Arguments )
+#if 1
+void stream::OnData( sclnjs::sCaller &Caller )
 {
 qRH
-	nodeq::sRStream Source, This;
+	sclnjs::rRStream This;
+	sclnjs::rBuffer Chunk;
+qRB
+	tol::Init( This, Chunk );
+	Caller.GetArgument( This, Chunk );
+
+	rStreamRack_ &Rack = *(rStreamRack_ *)This.Get( "_rack0" );
+
+	Rack.OFlow << Chunk;
+qRR
+qRT
+qRE
+}
+
+void stream::OnEOD( sclnjs::sCaller &Caller )
+{
+qRH
+	sclnjs::rRStream This;
+qRB
+	tol::Init( This );
+	Caller.GetArgument( This );
+
+	rStreamRack_ &Rack = *(rStreamRack_ *)This.Get( "_rack0" );
+
+	Rack.OFlow.Commit();
+qRR
+qRT
+qRE
+}
+/*
+void OnReadable_( const v8q::sFunctionInfos &Infos )
+{
+qRFH
+	nodeq::sRStream This;
+	nodeq::sBuffer Chunk;
+qRFB
+	This.Init(Infos.This() );
+
+	rStreamRack_ &Rack = *nodeq::sExternal<rStreamRack_>( This.Get( "_rack0" ) ).Value();
+
+	Chunk.Init();
+
+	if ( This.Read( Chunk ) )
+		Rack.OFlow << Chunk;
+	else
+		Rack.OFlow.Commit();
+
+	if ( sclerror::IsErrorPending() )
+		qRAbort();
+qRFR
+qRFT
+qRFE( sclnjs::ErrFinal() )
+}
+*/
+#else
+void OnData_( const v8q::sFunctionInfos &Infos )
+{
+qRFH
+	nodeq::sRStream This;
+	nodeq::sBuffer Chunk;
+qRFB
+	This.Init(Infos.This() );
+
+	Chunk.Init();
+	v8q::Get( Infos, Chunk );
+		
+	rStreamRack_ &Rack = *nodeq::sExternal<rStreamRack_>( This.Get( "_rack0" ) ).Value();
+
+	Rack.OFlow << Chunk;
+qRFR
+qRFT
+qRFE( sclnjs::ErrFinal() )
+}
+
+void OnEnd_( const v8q::sFunctionInfos &Infos )
+{
+qRFH
+	nodeq::sRStream This;
+qRFB
+	This.Init( Infos.This() );
+	rStreamRack_ &Rack = *nodeq::sExternal<rStreamRack_>( This.Get( "_rack0" ) ).Value();
+
+	Rack.OFlow.Commit();
+qRFR
+qRFT
+qRFE( sclnjs::ErrFinal() )
+}
+#endif
+
+
+void stream::OnRead( sclnjs::sCaller &Caller )
+{
+qRH
+	sclnjs::rRStream This;
+qRB
+	This.Init();
+	Caller.GetArgument( This );
+
+	rStreamRack_ &Rack = *(rStreamRack_ *)( This.Get( "_rack0" ) );
+
+	if ( Rack.Error.Amount() != 0 ) {
+		This.EmitError( Rack.Error );
+		Rack.Error.Init();
+	}
+
+	Rack.Blocker.Unblock();
+qRR
+qRE
+qRT
+}
+
+void stream::Set( sclnjs::sCaller &Caller )
+{
+qRH
+	sclnjs::rRStream Source, *This = NULL;
 	rStreamRackASyncCallback_ *Rack = NULL;
 qRB
 	Rack = new rStreamRackASyncCallback_;
@@ -477,29 +506,36 @@ qRB
 	if ( Rack == NULL )
 		qRAlc();
 
-	tol::Init( Source, This );
-	Arguments.Get( Source, This );
+	This = new sclnjs::rRStream;
 
-	Rack->Init( This );
+	if ( This == NULL )
+		qRAlc();
 
-	Source.Set( "_rack0", nodeq::sExternal<rStreamRack_>( Rack ) );
-	This.Set( "_rack0", nodeq::sExternal<rStreamRack_>( Rack ) );
+	tol::Init( Source, *This );
+
+	Caller.GetArgument( Source, *This );
+
+	Rack->Init( *This );
+
+	Source.Set( "_rack0", Rack );
+	This->Set( "_rack0", Rack );
 
 #if 1
-	Source.OnReadable( OnReadable_ );
+//	Source.OnReadable( OnReadable_ );
 # else // Doesn't always work. Sometimes, 'onend' event is not launched...
 	Source.OnData( OnData_ );
 	Source.OnEnd( OnEnd_ );
 #endif
 
-	This.OnRead( OnRead_ );
+//	This.OnRead( OnRead_ );
 
-	uvq::Launch( *Rack );
-
-	Rack = NULL;
+	sclnjs::Launch( *Rack );
 qRR
-qRT
 	if ( Rack != NULL )
 		delete Rack;
+
+	if ( This != NULL )
+		delete This;
+qRT
 qRE
 }

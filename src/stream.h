@@ -23,7 +23,10 @@
 # include "sclnjs.h"
 
 namespace stream {
-	void Set( const sclnjs::sArguments &Arguments );
+	void OnData( sclnjs::sCaller &Caller );	// Called when some data is available.
+	void OnEOD( sclnjs::sCaller &Caller );	// Called when no more data is available.
+	void OnRead( sclnjs::sCaller &Caller );
+	void Set( sclnjs::sCaller &Caller );
 }
 
 #endif

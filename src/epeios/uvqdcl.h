@@ -17,22 +17,25 @@
 	along with the Epeios framework.  If not, see <http://www.gnu.org/licenses/>
 */
 
-// From libuv
+// 'libuv' related declarations.
+// It's a sub-library of 'uvq' (hence the namespace),
+// which contains only the declarations ('.cpp' is empty).
+// It facilitates the implementation of the 'Node.js' wrapper ('njsq').
 
-#ifndef UVQ_INC_
-# define UVQ_INC_
 
-# define UVQ_NAME		"UVQ"
+#ifndef UVQDCL_INC_
+# define UVQDCL_INC_
 
-# if defined( E_DEBUG ) && !defined( UVQ_NODBG )
-#  define UVQ_DBG
+# define UVQDCL_NAME		"UVQDCL"
+
+# if defined( E_DEBUG ) && !defined( UVQDCL_NODBG )
+#  define UVQDCL_DBG
 # endif
 
 # include "err.h"
 # include "tol.h"
 
 namespace uvq {
-
 	qENUM( Behavior ) {
 		bRelaunch,	// Relaunches 'UVWork'.
 		bExitAndDelete,	// Exits and calls 'delete' on the object, which have to be instantiated with 'new'.
@@ -41,14 +44,14 @@ namespace uvq {
 		b_Undefined
 	};
 
-	class cASync {
+	class cAsync {
 	protected:
 		// Note to 'v8' user : you can NOT access any of the 'v8' data from this method.
 		virtual void UVQWork( void ) = 0;
 		// Note to 'v8' user : you CAN access any of the 'v8' data from this method.
 		virtual eBehavior UVQAfter( void ) = 0;
 	public:
-		qCALLBACK( ASync );
+		qCALLBACK( Async );
 		void Work( void )
 		{
 			return UVQWork();
@@ -59,7 +62,7 @@ namespace uvq {
 		}
 	};
 
-	void Launch( cASync &Callbacks );
+	void Launch( cAsync &Callbacks );
 
 	bso::sUInt AmountPending( void );
 }

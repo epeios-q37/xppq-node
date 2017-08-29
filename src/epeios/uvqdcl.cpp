@@ -17,56 +17,9 @@
 	along with the Epeios framework.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#define V8Q__COMPILATION
+#define UVQDCL_COMPILATION_
 
-#include "v8q.h"
+#include "uvqdcl.h"
 
-#include "ntvstr.h"
+using namespace uvq;
 
-using namespace v8q;
-
-namespace {
-	// Global isolate.
-	v8::Isolate *Isolate_ = NULL;
-}
-
-void v8q::SetGlobalIsolate( v8::Isolate *Isolate )
-{
-	if ( Isolate_ != NULL )
-		qRFwk();
-
-	Isolate_ = Isolate;
-}
-
-v8::Isolate *v8q::GetGlobalIsolate( void )
-{
-	if ( Isolate_ == NULL )
-		return v8::Isolate::GetCurrent();
-	else
-		return Isolate_;
-}
-
-txf::text_oflow__ &operator <<(
-	txf::text_oflow__ &Flow,
-	const sString &String)
-{
-qRH
-	char *Buffer = NULL;
-	int Size = 0;
-qRB
-	Buffer = (char *)malloc ( Size = String.Size() + 1 );
-
-	if ( Buffer == NULL )
-		qRAlc();
-
-	if ( Size != String.Get( Buffer ) )
-		qRFwk();
-
-	Flow << Buffer;
-qRR
-qRT
-	if ( Buffer != NULL )
-		delete( Buffer );
-qRE
-	return Flow;
-}

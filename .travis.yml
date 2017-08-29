@@ -7,6 +7,7 @@ dist: trusty
 language: node_js
 
 node_js:
+- "8"
 - "7"
 - "6"
 - "5"
@@ -17,4 +18,13 @@ script:
 #- npm install node-pre-gyp
 #- node-pre-gyp configure
 #- node-pre-gyp build
-- node demo.js
+- npm install njsq
+- npm explore njsq -- node test.js
+- node-pre-gyp configure
+- node-pre-gyp build
+- node test.js
+
+# To disable building on tags. Tags are supposed to begin with 'v' and only containing digits.
+branches:
+  except:
+    - /^v[0-9]/

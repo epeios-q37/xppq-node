@@ -17,15 +17,21 @@
     along with XPPq.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PARSER_INC_
-# define PARSER_INC_
+#ifndef REGISTRY_INC_
+# define REGISTRY_INC_
 
-# include "sclnjs.h"
+# include "sclrgstry.h"
 
-namespace parser {
-	void OnData( sclnjs::sCaller &Caller );	// Called when some data is available.
-	void OnEOD( sclnjs::sCaller &Caller );	// Called when no more data is available.
-	void Parse( sclnjs::sCaller &Caller );
+namespace registry {
+	using namespace sclrgstry;
+
+	namespace parameter {
+		using namespace sclrgstry::parameter;
+	}
+
+	namespace definition {
+		using namespace sclrgstry::definition;
+	}
 }
 
 #endif
