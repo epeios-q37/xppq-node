@@ -17,19 +17,18 @@
 	along with XPPq. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// The preprocessing stream. 
+// STREAM Upstream.
+// Reading of data to preprocess.
 
-#ifndef STREAM_INC_
-# define STREAM_INC_
+#ifndef STREAM__U_INC_
+# define STREAM_U_INC_
 
-# include "stream_d.h"
-# include "stream_u.h"
+# include "sclnjs.h"
 
-namespace stream {
-	using stream_u::OnData;
-	using stream_u::OnEnd;
-	using stream_d::Read;
-	void Set( sclnjs::sCaller &Caller );
+namespace stream_u {
+	// Both are called in the JS 'onReadable' function.
+	void OnData( sclnjs::sCaller &Caller );	// Called when some data is available.
+	void OnEnd( sclnjs::sCaller &Caller );	// Called when no more data is available.
 }
 
 #endif

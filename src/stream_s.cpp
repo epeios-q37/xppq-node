@@ -17,19 +17,11 @@
 	along with XPPq. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// The preprocessing stream. 
+#include "stream_s.h"
 
-#ifndef STREAM_INC_
-# define STREAM_INC_
+#include "mtk.h"
 
-# include "stream_d.h"
-# include "stream_u.h"
+using namespace stream_s;
 
-namespace stream {
-	using stream_u::OnData;
-	using stream_u::OnEnd;
-	using stream_d::Read;
-	void Set( sclnjs::sCaller &Caller );
-}
+qCDEF( char *, stream_s::Id, "_q37RackPreprocessor" );
 
-#endif

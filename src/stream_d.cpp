@@ -17,19 +17,28 @@
 	along with XPPq. If not, see <http://www.gnu.org/licenses/>.
 */
 
-// The preprocessing stream. 
+#include "stream_d.h"
 
-#ifndef STREAM_INC_
-# define STREAM_INC_
+#include "stream_s.h"
 
-# include "stream_d.h"
-# include "stream_u.h"
+using namespace stream_d;
 
-namespace stream {
-	using stream_u::OnData;
-	using stream_u::OnEnd;
-	using stream_d::Read;
-	void Set( sclnjs::sCaller &Caller );
+using stream_s::rRack;
+
+void stream_d::Read( sclnjs::sCaller &Caller )
+{
+qRH
+	sclnjs::rRStream This;
+qRB
+	This.Init();
+
+	Caller.GetArgument( This );
+
+	rRack &Rack = *(rRack *)( This.Get( stream_s::Id ) );
+
+	Rack.Unblock();	// Reports than 'push()' operations can be made.
+qRR
+qRE
+qRT
 }
 
-#endif
