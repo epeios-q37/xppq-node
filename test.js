@@ -71,34 +71,38 @@ function write(text) {
 
 function indent(level) {
     while (level--)
-        write(' ');
+        write('.');
 }
 
 function callback(token, tag, attribute, value) {
     switch (token) {
     case xppq.tokens.ERROR:
-        throw("ERROR  :'" + value + "'\n");
+        throw("ERROR :'" + value + "'\n");
         break;
     case xppq.tokens.DONE:
         process.stdout.write(out);
         break;
     case xppq.tokens.START_TAG:
+        write("Start tag");
         indent(indentLevel);
-        write("Start tag :'" + tag + "'\n");
+        write(":'" + tag + "'\n");
         indentLevel++;
         break;
     case xppq.tokens.ATTRIBUTE:
+        write("Attribute");
         indent(indentLevel);
-        write("Attribute :'" + attribute + "' = '" + value + "'\n");
+        write(":'" + attribute + "' = '" + value + "'\n");
         break;
     case xppq.tokens.VALUE:
+        write("Value    ");
         indent(indentLevel);
-        write("Value     :'" + value.trim() + "'\n");
+        write(":'" + value.trim() + "'\n");
         break;
     case xppq.tokens.END_TAG:
         indentLevel--;
+        write("End tag  ");
         indent(indentLevel);
-        write("End tag   :'" + tag + "'\n");
+        write(":'" + tag + "'\n");
         break;
     default:
         throw ("Unknown token !!!");
