@@ -137,7 +137,7 @@ console.log('     ---------------');
 function test( id ) {
     switch ( id ) {
     case 0:
-        console.log("No treatment ; to see the original file.\n");
+        console.log("No treatment ; to see the original XML data.\n");
         getStream().pipe(process.stdout);
         break;
     case 1:
@@ -157,7 +157,7 @@ function test( id ) {
         xppq.parse(new xppq.Stream(getStream()).on('error', (err) => console.error('>>> ERROR : ' + err)), callback);
         break;
     default:
-        console.error("'" + arg + "' is not a valid test id ; must be '0' to '4'.");
+        console.log("'" + id + "' is not a valid test id ; must be '0' to '4'.");
         break;
     }
 }

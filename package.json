@@ -1,6 +1,6 @@
 {
   "name": "xppq",
-  "version": "2017.9.12",
+  "version": "2017.9.13",
   "author": "Claude SIMON (http://q37.info/contact/)",
   "description": "XML parser and preprocessor",
   "main": "XPPq.js",
@@ -10,12 +10,12 @@
   "binary": {
     "module_name": "xppqnjs",
     "module_path": ".",
-    "remote_path": "./epeios-q37/xppq-node/releases/download/v20170912/",
-    "package_name": "{module_name}-v20170912-{platform}-{arch}.tar.gz",
+    "remote_path": "./epeios-q37/xppq-node/releases/download/v20170913/",
+    "package_name": "{module_name}-v20170913-{platform}-{arch}.tar.gz",
     "host": "https://github.com"
   },
   "dependencies": {
-    "njsq": "<=2017.9.12",
+    "njsq": "<=2017.9.13",
     "node-pre-gyp": "0.6.x"
   },
   "devDependencies": {
@@ -37,5 +37,6 @@
   "bugs": {
     "url": "https://github.com/epeios-q37/xppq-node/issues"
   },
-  "homepage": "https://github.com/epeios-q37/xppq-node#readme"
+  "homepage": "https://github.com/epeios-q37/xppq-node#readme",
+  "runkitExampleFilename": "runkit.js"
 }
