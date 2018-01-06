@@ -26,14 +26,14 @@
 #include "sclmisc.h"
 #include "scln4a.h"
 
-void scln4a::SCLN4AInfo( txf::sOFlow &Flow )
+void sclnjs::SCLNJSInfo( txf::sWFlow &Flow )
 {
 	Flow << NAME_MC << " v" << VERSION << txf::nl
 		 << txf::pad << "Build : " __DATE__ " " __TIME__ " (" << cpe::GetDescription() << ')';
 }
 
 namespace {
-	void ReturnArgument_( scln4a::sCaller &Caller )
+	void ReturnArgument_( sclnjs::sCaller &Caller )
 	{
 	qRH
 		str::wString Input, Text;
@@ -51,7 +51,7 @@ namespace {
 	}
 }
 
-void sclnjs::SCLNJSRegister( scln4a::sRegistrar &Registrar )
+void sclnjs::SCLNJSRegister( sclnjs::sRegistrar &Registrar )
 {
 	Registrar.Register( ReturnArgument_ );
 	Registrar.Register( parser::OnData, parser::OnEnd, parser::Parse );

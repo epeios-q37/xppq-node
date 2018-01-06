@@ -84,7 +84,7 @@ namespace {
 
 	class rRack_ {
 	private:
-		flw::sDressedIFlow<> IFlow_;
+		flw::sDressedRFlow<> IFlow_;
 		xtf::sIFlow XFlow_;
 		xml::rParser Parser_;
 		rContent_ Content_;
@@ -92,10 +92,15 @@ namespace {
 		common::sRelay Relay_;
 		bso::sBool First_;
 	public:
-		txf::rOFlow OFlow;
+		txf::rWFlow OFlow;
 		str::wString Error;
 		void reset( bso::sBool P = true )
 		{
+			if ( P ) {
+				if ( Callback_ != NULL )
+					delete Callback_;
+			}
+
 			tol::reset( P, IFlow_, XFlow_, Parser_, Content_, Callback_, Relay_, First_, Error );
 		}
 		qCVDTOR( rRack_ );
@@ -127,12 +132,12 @@ namespace {
 		bso::sBool SendToCallback( void )
 		{
 			if ( Content_.Token == xml::t_Error ) {
-				C_().Launch( 0, Content_.Tag, Content_.Attribute, Content_.Error );
+				C_().VoidLaunch( 0, Content_.Tag, Content_.Attribute, Content_.Error );
 				XFlow_.UndelyingFlow().IDriver().ITake( tht::GetTID() );
 				XFlow_.Dismiss();	// To avoid locker owner problem on destruction.
 				return true;
 			} else if ( Content_.Token == xml::t_Processed ) {
-				C_().Launch( 1, Content_.Tag, Content_.Attribute, Content_.Value );
+				C_().VoidLaunch( 1, Content_.Tag, Content_.Attribute, Content_.Value );
 				XFlow_.UndelyingFlow().IDriver().ITake( tht::GetTID() );
 				XFlow_.Dismiss();	// To avoid locker owner problem on destruction.
 				return true;
@@ -157,7 +162,7 @@ namespace {
 					break;
 				}
 
-				C_().Launch( Token, Content_.Tag, Content_.Attribute, Content_.Value );
+				C_().VoidLaunch( Token, Content_.Tag, Content_.Attribute, Content_.Value );
 			}
 
 			return false;
@@ -195,7 +200,7 @@ namespace {
 	};
 }
 
-void parser::OnData( sclnjs::sCaller &Caller )
+SCLNJS_F( parser::OnData )
 {
 qRH
 	sclnjs::rRStream This;
@@ -212,7 +217,7 @@ qRT
 qRE
 }
 
-void parser::OnEnd( sclnjs::sCaller &Caller )
+SCLNJS_F( parser::OnEnd )
 {
 qRH
 	sclnjs::rRStream This;
@@ -228,7 +233,7 @@ qRT
 qRE
 }
 
-void parser::Parse( sclnjs::sCaller &Caller )
+SCLNJS_F( parser::Parse )
 {
 qRH
 	sclnjs::rRStream Source;

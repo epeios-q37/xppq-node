@@ -452,24 +452,45 @@ namespace txf {
 
 namespace txf {
 	// As parameter.
-	typedef text_oflow__ sOFlow;
+	typedef text_oflow__ sWFlow;
 
-	class rOFlow
+	class rWFlow
 	: public text_oflow__
 	{
 	private:
-		flw::sDressedOFlow<> Flow_;
+		flw::sDressedWFlow<> Flow_;
 	public:
 		void reset( bso::sBool P = true )
 		{
 			text_oflow__::reset( P );
 			tol::reset( P, Flow_ );
 		}
-		qCDTOR( rOFlow );
-		void Init( fdr::rODriver &Driver )
+		qCDTOR( rWFlow );
+		void Init( fdr::rWDriver &Driver )
 		{
 			Flow_.Init( Driver );
 			text_oflow__::Init( Flow_ );
+		}
+	};
+
+	// As parameter.
+	typedef text_iflow__ sRFlow;
+
+	class rRFlow
+	: public text_iflow__ {
+	private:
+		flw::sDressedRFlow<> Flow_;
+	public:
+		void reset( bso::sBool P = true )
+		{
+			text_iflow__::reset( P );
+			tol::reset( P, Flow_ );
+		}
+		qCDTOR( rRFlow );
+		void Init( fdr::rRDriver &Driver )
+		{
+			Flow_.Init( Driver );
+			text_iflow__::Init( Flow_ );
 		}
 	};
 }

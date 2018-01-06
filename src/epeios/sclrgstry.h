@@ -41,6 +41,7 @@ namespace sclrgstry {
 
 	using rgstry::tags_;
 	using rgstry::tags;
+	using rgstry::rEntry;
 
 	typedef rgstry::multi_level_registry_ registry_;
 
@@ -165,7 +166,7 @@ namespace sclrgstry {
 
 	void Load(
 		eLevel Level,
-		flw::sIFlow &Flow,
+		flw::sRFlow &Flow,
 		const fnm::name___ &Directory,
 		const char *RootPath );
 

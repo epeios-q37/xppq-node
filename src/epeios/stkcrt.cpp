@@ -17,31 +17,9 @@
 	along with the Epeios framework.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#define FDR__COMPILATION
+#define STKCRT_COMPILATION_
 
-#include "fdr.h"
+#include "stkcrt.h"
 
-#include "flx.h"
-
-using namespace fdr;
-
-void fdr::Copy_(
-	rRDriver &IDriver,
-	sByte *Buffer,
-	sSize BufferSize,
-	rWDriver &ODriver )
-{
-	while ( !IDriver.EndOfFlow() )
-		ODriver.Write( Buffer, IDriver.Read( BufferSize, Buffer, fdr::bNonBlocking ) );
-}
-
-void fdr::Purge_(
-	rRDriver &Driver,
-	sByte *Buffer,
-	sSize BufferSize )
-{
-	while ( !Driver.EndOfFlow() )
-		Driver.Read( BufferSize, Buffer, fdr::bNonBlocking );
-}
-
+using namespace stkcrt;
 

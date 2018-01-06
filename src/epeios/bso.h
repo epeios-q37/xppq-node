@@ -31,7 +31,9 @@
 # include <stdint.h>
 # include <float.h>
 
-# define __STDC_FORMAT_MACROS 1	// Needed by below header with the 'mingw' compiler.
+# ifndef __STDC_FORMAT_MACROS
+#  define __STDC_FORMAT_MACROS	// Needed by below header with the 'mingw' compiler.
+# endif
 # include <inttypes.h>
 
 
@@ -712,10 +714,17 @@ namespace bso {
 	typedef u32__ sU32;
 	typedef s32__ sS32;
 
+	typedef u64__ sU64;
+	typedef s64__ sS64;
+
 	typedef sUInt sFlag;
 
 	typedef char__ sChar;
 
 	const bso::sSize SizeMax = BSO_SIZE_MAX;
+
+	typedef sfloat__ sSFloat;
+	typedef float__ sFloat;
+	typedef lfloat__ sLFloat;
 }
 #endif

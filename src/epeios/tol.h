@@ -65,7 +65,11 @@
 
 # include "bso.h"
 
-// Predcleration
+// Predeclarations
+namespace uys {
+	struct sHook;
+}
+
 namespace ags {
 	class aggregated_storage_;
 }
@@ -235,6 +239,14 @@ public:\
 	{\
 		d##name::operator =( O );\
 \
+		return *this;\
+	}\
+	const d##name &operator *( void ) const\
+	{\
+		return *this;\
+	}\
+	d##name &operator *( void )\
+	{\
 		return *this;\
 	}
 
@@ -650,9 +662,13 @@ namespace tol {
 //			S_.Object.reset( P );	// The object is already destroyed by the one which features the reference.
 		}
 		qCVDTOR( dObject );
-		void plug( class ags::aggregated_storage_ * )
+		void plug( uys::sHook &Hook )
 		{
-			// Pour des raisons de standardisation.
+			// Standardization.
+		}
+		void plug( ags::aggregated_storage_ *AS )
+		{
+			// Standardization.
 		}
 		dObject &operator =( const dObject &O )
 		{
@@ -2024,13 +2040,15 @@ template <typename type, typename _type, type False, type Error, type Undefined>
 	__attribute__( ( constructor ) ) static void discriminator##_q37ctor( void )
 #else
 # define Q37_GCTOR( discriminator )\
-	class discriminator##_q37gctor\
-	{\
-	public:\
-		discriminator##_q37gctor( void );\
-	};\
-	\
-	static discriminator##_q37gctor discriminator##_Q37gctor;\
+	namespace {\
+		class discriminator##_q37gctor\
+		{\
+		public:\
+			discriminator##_q37gctor( void );\
+		};\
+		\
+		discriminator##_q37gctor discriminator##_Q37gctor;\
+	}\
 	\
 	discriminator##_q37gctor::discriminator##_q37gctor( void )
 #endif
@@ -2040,13 +2058,15 @@ template <typename type, typename _type, type False, type Error, type Undefined>
 	__attribute__( ( destructor ) ) static void discriminator##_q37gdtor( void )
 #else
 # define Q37_GDTOR( discriminator )\
+	namespace  {\
 	class discriminator##_q37gdtor\
-	{\
-	public:\
-		~discriminator##_q37gdtor( void );\
-	};\
-	\
-	static discriminator##_q37gdtor discriminator##_Q37gdtor;\
+		{\
+		public:\
+			~discriminator##_q37gdtor( void );\
+		};\
+		\
+		discriminator##_q37gdtor discriminator##_Q37gdtor;\
+	}\
 	\
 	discriminator##_q37gdtor::~discriminator##_q37gdtor( void )
 #endif

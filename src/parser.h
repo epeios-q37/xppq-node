@@ -23,9 +23,9 @@
 # include "sclnjs.h"
 
 namespace parser {
-	void OnData( sclnjs::sCaller &Caller );	// Called when some data is available.
-	void OnEnd( sclnjs::sCaller &Caller );	// Called when no more data is available.
-	void Parse( sclnjs::sCaller &Caller );
+	SCLNJS_F( OnData );	// Called when some data is available.
+	SCLNJS_F( OnEnd );	// Called when no more data is available.
+	SCLNJS_F( Parse );
 }
 
 #endif

@@ -1,4 +1,31 @@
-# *XPPq* changelog.
+# *XPPq* changelog
+
+2018-01-06::
+- *xppqnjs*:
+  - adaptation to modification of used components.
+
+2017-12-19:
+- *xppqnjs*:
+  - adaptation to modification of used components.
+
+2017-10-29:
+- *xppqjre*:
+  - Adaptation to changes in *SCLJRE*.
+
+2017-09-26 :
+- *xppqnjs*:
+  - Adding missing deletion of the callback given to the parser.
+
+2017-09-17 :
+- *xppqnjs*
+  - Upgrading.
+
+2017-09-15 :
+- *xppqnjs*
+    - Adaptation to changes in underlying libraries.
+2017-09-13 :
+- *xppqnjs*
+    - Adding file for *Runkit* (`runkit.js`).
 
 2017-09-12 :
 - *xppqnjs*
